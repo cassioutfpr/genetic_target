@@ -1,0 +1,198 @@
+<canvas id="gc" width="400" height="400"></canvas>
+<p id='generation'/>
+<p id='fittest'/>
+
+<script>
+window.onload=function() {
+    canv=document.getElementById("gc");
+    ctx=canv.getContext("2d");
+    setInterval(game,1000/40);
+}
+px=py=10;
+gs=tc=20;
+ax=ay=15;
+xv=yv=0;
+trail=[];
+tail = 5;
+trailIndex = 0;
+fitness=200;
+generations = 0;
+players = [
+    {
+        trail: initTrail(),
+        position: {x: 0, y: 0},
+        color: 'lime',
+        distanceToTarget: 40,
+        generations: 0
+    },
+    {
+        trail: initTrail(),
+        position: {x: 0, y: 0},
+        color: 'pink',
+        distanceToTarget: 40,
+        generations: 0
+    },
+    {
+        trail: initTrail(),
+        position: {x: 0, y: 0},
+        color: 'orange',
+        distanceToTarget: 40,
+        generations: 0
+    },
+    {
+        trail: initTrail(),
+        position: {x: 0, y: 0},
+        color: 'red',
+        distanceToTarget: 40,
+        generations: 0
+    },
+    {
+        trail: initTrail(),
+        position: {x: 0, y: 0},
+        color: 'cyan',
+        distanceToTarget: 40,
+        generations: 0
+    }
+]
+
+function initTrail() {
+    let trail = [];
+    for (let i=0; i < 60; i++) {
+        trail.push({x:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2),y:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2)})
+    }
+    return trail;
+}
+
+function getPlayerTrailToString(trail) {
+    let opa = "";
+    trail.forEach(step => {
+        opa += "x: " + step.x  + " | y: " + step.y + " | ";
+    })
+    return opa;
+}
+
+function game() {
+
+    document.getElementById('generation').innerHTML = "Geração " + generations;
+
+    ctx.fillStyle="black";
+    ctx.fillRect(0,0,canv.width,canv.height);
+ 
+    players.forEach(player => {
+        player.position.x+=player.trail[trailIndex].x;
+        player.position.y+=player.trail[trailIndex].y;
+        if(player.position.x<0) {
+             player.position.x= 0;
+        }
+        if(player.position.x>tc-1) {
+            player.position.x= tc-1;
+        }
+        if(player.position.y<0) {
+            player.position.y= 0;
+        }
+        if(player.position.y>tc-1) {
+            player.position.y= tc-1;
+        }
+        ctx.fillStyle=player.color;
+        ctx.fillRect(player.position.x*gs,player.position.y*gs,gs-2,gs-2);
+    })
+
+
+
+    ctx.fillStyle="red";
+    ctx.fillRect(ax*gs,ay*gs,gs-2,gs-2);
+
+    trailIndex++;
+
+    if (trailIndex === 60) {
+        nextGeneration()
+    }
+}
+
+function nextGeneration() {
+    generations++;
+    let generationFitness = 0;
+    console.log(players)
+    players.forEach(player => {
+        player.distanceToTarget = calculateDistanceToTarget(player.position, {x: 15, y: 15});
+        generationFitness += player.distanceToTarget;
+    })
+    console.log(generationFitness)
+    players.sort((a, b) => a.distanceToTarget - b.distanceToTarget);
+    let fittest = JSON.parse(JSON.stringify(players[0]));
+    let secondFittest = JSON.parse(JSON.stringify(players[1]));
+    
+    fittest.trail[0] = secondFittest.trail[0];
+    fittest.trail[1] = secondFittest.trail[1];
+    fittest.trail[2] = secondFittest.trail[2];
+    fittest.trail[3] = secondFittest.trail[3];
+    fittest.trail[4] = secondFittest.trail[4];
+    fittest.trail[5] = secondFittest.trail[5];
+    fittest.trail[6] = secondFittest.trail[6];
+    fittest.trail[7] = secondFittest.trail[7];
+    fittest.trail[8] = secondFittest.trail[8];
+    
+    /*
+    fittest.trail[24] = secondFittest.trail[24];
+    fittest.trail[25] = secondFittest.trail[25];
+    fittest.trail[26] = secondFittest.trail[26];
+    fittest.trail[27] = secondFittest.trail[27];
+    fittest.trail[28] = secondFittest.trail[28];
+    fittest.trail[29] = secondFittest.trail[29];
+    */
+    
+    secondFittest.trail[0] = players[0].trail[0];
+    secondFittest.trail[1] = players[0].trail[1];
+    secondFittest.trail[2] = players[0].trail[2];
+    secondFittest.trail[3] = players[0].trail[3];
+    secondFittest.trail[4] = players[0].trail[4];
+    secondFittest.trail[5] = players[0].trail[5];
+    secondFittest.trail[6] = players[0].trail[6];
+    secondFittest.trail[7] = players[0].trail[7];
+    secondFittest.trail[8] = players[0].trail[8];
+    /*
+    secondFittest.trail[24] = players[0].trail[24];
+    secondFittest.trail[25] = players[0].trail[25];
+    secondFittest.trail[26] = players[0].trail[26];
+    secondFittest.trail[27] = players[0].trail[27];
+    secondFittest.trail[28] = players[0].trail[28];
+    secondFittest.trail[29] = players[0].trail[29];
+    */
+
+    fittest.trail[Math.floor(Math.random() * 30)] = {x:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2),y:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2)}
+    fittest.trail[Math.floor(Math.random() * 30)] = {x:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2),y:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2)}
+        fittest.trail[Math.floor(Math.random() * 30)] = {x:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2),y:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2)}
+            fittest.trail[Math.floor(Math.random() * 30)] = {x:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2),y:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2)}
+
+    secondFittest.trail[Math.floor(Math.random() * 30)] = {x:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2),y:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2)}
+    secondFittest.trail[Math.floor(Math.random() * 30)] = {x:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2),y:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2)}
+        secondFittest.trail[Math.floor(Math.random() * 30)] = {x:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2),y:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2)}
+            secondFittest.trail[Math.floor(Math.random() * 30)] = {x:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2),y:(Math.random() < 0.5 ? -1 : 1) * Math.floor(Math.random() * 2)}
+    
+
+    fittest.generations = 0
+    fittest.secondFittest = 0
+
+    players.push(JSON.parse(JSON.stringify(fittest)));
+    players.push(JSON.parse(JSON.stringify(secondFittest)));
+
+    players.forEach(player => {
+        player.position = {x: 0, y: 0}
+        player.generations++;
+    })
+    
+    players = players.filter(function( obj ) {
+        return obj.generations < 10;
+    });
+
+    trailIndex = 0;
+
+    document.getElementById('fittest').innerHTML = "Mais apto: " + fittest.color + " | Distância até o alvo: " + fittest.distanceToTarget + " casas";
+
+}
+
+function calculateDistanceToTarget(playerPosition, targetPosition) {
+    return Math.abs(targetPosition.x - playerPosition.x) + Math.abs(targetPosition.y - playerPosition.y)
+}
+
+</script>
